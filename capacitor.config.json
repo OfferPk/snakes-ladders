@@ -1,0 +1,11 @@
+{
+  "appId": "com.ceobot.snakesladders",
+  "appName": "Snakes & Ladders",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

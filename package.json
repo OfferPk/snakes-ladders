@@ -1,0 +1,31 @@
+{
+  "name": "snakes-and-ladders",
+  "version": "2.0.0-phaseA",
+  "description": "Premium Offline Snakes & Ladders v2 Phase A — themes, power-ups, coins, PWA + Capacitor",
+  "private": true,
+  "scripts": {
+    "start": "npx --yes serve -l 4173 .",
+    "serve": "npx --yes serve -l 4173 .",
+    "build:web": "node scripts/build-web.js",
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npm run build:web && npx cap sync android",
+    "cap:open": "npx cap open android",
+    "android:build": "npm run cap:sync && cd android && ./gradlew assembleDebug",
+    "start:py": "python3 -m http.server 4173"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  },
+  "keywords": [
+    "snakes-and-ladders",
+    "pwa",
+    "offline",
+    "capacitor"
+  ],
+  "author": "CEO BOT Games / Mia Smith",
+  "license": "MIT"
+}

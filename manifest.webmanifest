@@ -1,0 +1,32 @@
+{
+  "name": "Snakes & Ladders Premium",
+  "short_name": "S&L Premium",
+  "description": "Premium Offline Snakes & Ladders \u2014 themes, power-ups, coins, pass-and-play",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a2e24",
+  "theme_color": "#0d4f3c",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

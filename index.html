@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#0d4f3c" />
+  <meta name="description" content="Snakes & Ladders — offline pass-and-play Phase A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Snakes & Ladders</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-theme="classic">
+  <div id="app">
+    <!-- SETUP -->
+    <section id="screen-setup" class="screen active">
+      <header class="brand">
+        <div class="logo" aria-hidden="true">🐍🪜</div>
+        <h1 data-i18n="title">Snakes &amp; Ladders</h1>
+        <p class="tagline">Phase A · Offline · Coins &amp; power-ups</p>
+        <div class="coin-pill">🪙 <span id="setup-coins" data-coins>0</span></div>
+      </header>
+
+      <div class="row gap setup-nav">
+        <button type="button" id="btn-open-profile" class="btn secondary">Profile</button>
+        <button type="button" id="btn-open-shop" class="btn secondary">Shop</button>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="players">Players</h2>
+        <div id="player-slots" class="player-slots"></div>
+        <div class="row gap">
+          <button type="button" id="btn-add-player" class="btn secondary" data-i18n="add_player">+ Player</button>
+          <button type="button" id="btn-add-bot" class="btn secondary" data-i18n="add_bot">+ Bot</button>
+        </div>
+        <p class="hint">2–4 players. Bots move automatically.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Options</h2>
+        <label class="toggle-row">
+          <span>Sound</span>
+          <input type="checkbox" id="opt-sound" checked />
+        </label>
+        <label class="toggle-row">
+          <span>Language</span>
+          <select id="opt-lang">
+            <option value="en">English</option>
+            <option value="ur" disabled>اردو (soon)</option>
+          </select>
+        </label>
+        <label class="toggle-row">
+          <span>Board theme</span>
+          <select id="opt-theme"></select>
+        </label>
+        <label class="toggle-row">
+          <span>Branch board</span>
+          <input type="checkbox" id="opt-branch" />
+        </label>
+        <p class="hint">Branch: forks at 40 &amp; 70 (or tactical fork at 22). Left = shortcut rejoin; Right = main path.</p>
+        <label class="toggle-row">
+          <span>Moving hazards</span>
+          <input type="checkbox" id="opt-hazards" checked />
+        </label>
+        <p class="hint">Hazards: snake heads drift every few turns. Extra 💥 tiles (if on) send you back 3 squares.</p>
+        <label class="toggle-row">
+          <span>Wager (coins)</span>
+          <select id="opt-wager">
+            <option value="0">None</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="ad-banner" class="ad-banner" aria-hidden="true" hidden>
+        <span>Ad placeholder</span>
+      </div>
+
+      <button type="button" id="btn-start" class="btn primary xl" data-i18n="start">Start Game</button>
+      <footer class="footer">Offline Phase A · Exact 100 to win</footer>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="screen-profile" class="screen">
+      <header class="game-bar">
+        <button type="button" id="btn-profile-back" class="btn icon" aria-label="Back">←</button>
+        <div class="turn-info"><span>Profile</span></div>
+        <span class="coin-pill">🪙 <span id="profile-coins-display" data-coins>0</span></span>
+      </header>
+      <div class="panel">
+        <div id="avatar-preview" class="avatar-preview border-none"><span>🐍</span></div>
+        <label class="toggle-row">
+          <span>Display name</span>
+          <input type="text" id="profile-name" maxlength="16" />
+        </label>
+        <h3>Emblem</h3>
+        <div id="emblem-grid" class="emblem-grid"></div>
+        <button type="button" id="btn-save-profile" class="btn primary xl">Save</button>
+      </div>
+    </section>
+
+    <!-- SHOP -->
+    <section id="screen-shop" class="screen">
+      <header class="game-bar">
+        <button type="button" id="btn-shop-back" class="btn icon" aria-label="Back">←</button>
+        <div class="turn-info"><span>Shop</span></div>
+        <span class="coin-pill">🪙 <span id="shop-coins" data-coins>0</span></span>
+      </header>
+      <div class="panel">
+        <div id="shop-list" class="shop-list"></div>
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section id="screen-game" class="screen">
+      <header class="game-bar">
+        <button type="button" id="btn-menu" class="btn icon" title="Menu" aria-label="Back to menu">☰</button>
+        <div id="turn-info" class="turn-info">
+          <span id="turn-token" class="token-dot"></span>
+          <span id="turn-name">Player 1</span>
+        </div>
+        <span id="coin-hud" class="coin-pill">🪙 0</span>
+        <button type="button" id="btn-sound" class="btn icon" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+      </header>
+
+      <div class="board-wrap">
+        <div id="board" class="board" role="img" aria-label="Snakes and Ladders board 1 to 100"></div>
+        <svg id="board-overlays" class="board-overlays" aria-hidden="true"></svg>
+        <div id="tokens-layer" class="tokens-layer" aria-hidden="true"></div>
+        <div id="fx-layer" class="fx-layer" aria-hidden="true"></div>
+      </div>
+
+      <div id="inventory-bar" class="inventory-bar"></div>
+
+      <div class="controls">
+        <div id="dice" class="dice skin-classic" aria-live="polite" aria-label="Dice">
+          <div class="dice-face" id="dice-face">?</div>
+        </div>
+        <button type="button" id="btn-roll" class="btn primary xl" data-i18n="roll">Roll Dice</button>
+        <div id="status-msg" class="status-msg" aria-live="polite"></div>
+      </div>
+
+      <div id="player-hud" class="player-hud"></div>
+    </section>
+
+    <!-- WIN -->
+    <div id="modal-win" class="modal" hidden>
+      <div class="modal-card">
+        <div class="win-emoji" aria-hidden="true">🏆</div>
+        <h2 id="win-title">Winner!</h2>
+        <p id="win-sub"></p>
+        <p id="win-coins" class="win-coins"></p>
+        <button type="button" id="btn-multiplier" class="btn ghost">📺 2× coins (rewarded ad)</button>
+        <button type="button" id="btn-again" class="btn primary xl" data-i18n="play_again">Play Again</button>
+        <button type="button" id="btn-setup" class="btn secondary" data-i18n="change_setup">Change Setup</button>
+      </div>
+    </div>
+
+    <!-- LEAVE -->
+    <div id="modal-leave" class="modal" hidden>
+      <div class="modal-card">
+        <h2 data-i18n="leave_title">Leave game?</h2>
+        <p data-i18n="leave_body">Progress will be lost.</p>
+        <div class="row gap center">
+          <button type="button" id="btn-leave-cancel" class="btn secondary">Stay</button>
+          <button type="button" id="btn-leave-confirm" class="btn danger">Leave</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORK -->
+    <div id="modal-fork" class="modal" hidden>
+      <div class="modal-card">
+        <h2 id="fork-title">Choose your path</h2>
+        <p>Branch board fork — still ends at 100.</p>
+        <button type="button" id="fork-safe" class="btn primary xl">Safe</button>
+        <button type="button" id="fork-risk" class="btn secondary xl">Risk</button>
+      </div>
+    </div>
+
+    <!-- SECOND CHANCE -->
+    <div id="modal-second-chance" class="modal" hidden>
+      <div class="modal-card">
+        <h2>Snake bite!</h2>
+        <p>Watch a rewarded ad stub for a second chance (stay put)?</p>
+        <div class="row gap center">
+          <button type="button" id="btn-sc-no" class="btn secondary">Accept fate</button>
+          <button type="button" id="btn-sc-yes" class="btn primary">Second chance</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AD STUB -->
+    <div id="modal-ad-stub" class="modal" hidden>
+      <div class="modal-card">
+        <h2 class="ad-stub-title">Rewarded Ad (stub)</h2>
+        <p class="ad-stub-body" style="white-space:pre-wrap"></p>
+        <div class="row gap center">
+          <button type="button" class="btn secondary" data-ad-no>Cancel</button>
+          <button type="button" class="btn primary" data-ad-yes>Grant reward</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/economy.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/powerups.js"></script>
+  <script src="js/hazards.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/ads.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/game.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

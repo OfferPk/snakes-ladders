@@ -195,6 +195,12 @@ async function waitFor(predicate, description, timeoutMs = 12000) {
   throw new Error('Timed out waiting for ' + description);
 }
 
+async function pressTab(cdp, reverse = false) {
+  const modifiers = reverse ? 8 : 0;
+  await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9, modifiers });
+  await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9, modifiers });
+}
+
 async function httpJson(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error('Chromium DevTools HTTP error: ' + response.status);
@@ -277,20 +283,45 @@ async function runSuite(siteRoot, label) {
     assert.equal(state.activeElementId, 'win-title', label + ': focus must enter at the winner heading');
     assert.equal(state.status, '', label + ': stale Rolled n status must be cleared');
 
-    await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
-    await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+    await pressTab(cdp);
     state = await evaluate('window.__SL_ACCESSIBILITY_TEST__.snapshot()');
     assert.equal(state.activeElementId, 'btn-multiplier', label + ': first Tab should advance within the win dialog');
 
-    await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
-    await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+    await pressTab(cdp);
     state = await evaluate('window.__SL_ACCESSIBILITY_TEST__.snapshot()');
     assert.equal(state.activeElementId, 'btn-again', label + ': keyboard must reach Play Again');
     assert.equal(state.players[0].pos, 100, label + ': Tab navigation must not activate Play Again');
     assert.equal(state.modalHidden, false, label + ': Tab navigation must leave the win dialog open');
 
+    await pressTab(cdp);
+    state = await evaluate('window.__SL_ACCESSIBILITY_TEST__.snapshot()');
+    assert.equal(state.activeElementId, 'btn-setup', label + ': keyboard must reach Change Setup');
+    await pressTab(cdp);
+    state = await evaluate('window.__SL_ACCESSIBILITY_TEST__.snapshot()');
+    assert.equal(state.activeElementId, 'btn-multiplier', label + ': forward Tab from the last control must wrap to 2× coins');
+
+    await pressTab(cdp, true);
+    state = await evaluate('window.__SL_ACCESSIBILITY_TEST__.snapshot()');
+    assert.equal(state.activeElementId, 'btn-setup', label + ': reverse Tab from the first control must wrap to Change Setup');
+    await pressTab(cdp, true);
+    state = await evaluate('window.__SL_ACCESSIBILITY_TEST__.snapshot()');
+    assert.equal(state.activeElementId, 'btn-again', label + ': reverse traversal must reach Play Again');
+    await pressTab(cdp, true);
+    state = await evaluate('window.__SL_ACCESSIBILITY_TEST__.snapshot()');
+    assert.equal(state.activeElementId, 'btn-multiplier', label + ': reverse traversal must reach 2× coins');
+    await pressTab(cdp, true);
+    state = await evaluate('window.__SL_ACCESSIBILITY_TEST__.snapshot()');
+    assert.equal(state.activeElementId, 'btn-setup', label + ': reverse Tab from the first control must wrap to Change Setup');
+
+    await evaluate("document.getElementById('btn-menu').focus()");
+    await pressTab(cdp);
+    state = await evaluate('window.__SL_ACCESSIBILITY_TEST__.snapshot()');
+    assert.equal(state.activeElementId, 'btn-multiplier', label + ': Tab from outside the open dialog must return focus inside');
+    assert.equal(state.players[0].pos, 100, label + ': tab traversal must not activate a game action');
+    assert.equal(state.modalHidden, false, label + ': traversal must leave the winner dialog open');
+
     // Invoke the real Play Again handler only against this disposable page/profile.
-    // Keyboard navigation above must reach the button without triggering it.
+    // Navigation must not activate any action; only this synthetic click starts a fresh match.
     await evaluate("document.getElementById('btn-again').click()");
     await waitFor(async () => evaluate(
       "document.getElementById('modal-win').hidden && !window.__SL_ACCESSIBILITY_TEST__.snapshot().gameOver && window.__SL_ACCESSIBILITY_TEST__.snapshot().players.every(function (player) { return player.pos === 0; })"
@@ -300,8 +331,10 @@ async function runSuite(siteRoot, label) {
     assert.deepEqual(state.players.map((player) => player.name), ['Synthetic Winner', 'Synthetic Opponent'], label + ': Play Again must preserve fixture player identities');
     assert.equal(state.current, 0, label + ': Play Again must restart with the first fixture player');
     assert.equal(state.rolling, false, label + ': Play Again must leave the test match ready');
+    assert.equal(state.activeElementId, 'btn-roll', label + ': Play Again must focus the fresh match roll control');
+    assert.equal(await evaluate("!document.getElementById('btn-roll').disabled"), true, label + ': fresh human match roll control must be enabled');
 
-    console.log('PASS ' + label + ': exact-100 win, named modal/focus, keyboard reach without activation, isolated Play Again reset');
+    console.log('PASS ' + label + ': exact-100 win, full forward/reverse dialog cycle, no accidental activation, isolated Play Again reset and roll focus');
   } finally {
     if (cdp) cdp.close();
     if (browser.exitCode === null) {

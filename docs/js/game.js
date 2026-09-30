@@ -595,6 +595,45 @@
     refreshCoinsUI();
   }
 
+  function getWinDialogControls() {
+    const selector = [
+      'a[href]', 'area[href]', 'input:not([type="hidden"])', 'select', 'textarea',
+      'button', 'iframe', 'object', 'embed', '[controls]', '[contenteditable]:not([contenteditable="false"])',
+      '[tabindex]', 'summary'
+    ].join(',');
+    return Array.from(els['modal-win'].querySelectorAll(selector)).filter((el) => {
+      if (el.tabIndex < 0 || el.matches(':disabled')) return false;
+      if (el.closest('[hidden], [inert], [aria-hidden="true"]')) return false;
+      const style = window.getComputedStyle(el);
+      return style.display !== 'none' && style.visibility !== 'hidden' && el.getClientRects().length > 0;
+    });
+  }
+
+  function trapWinDialogTab(event) {
+    if (event.key !== 'Tab' || els['modal-win'].hidden) return;
+    // If a separate modal (such as the rewarded-ad stub) is open, it is the active dialog.
+    if (Array.from(document.querySelectorAll('.modal:not([hidden])')).some((modal) => modal !== els['modal-win'])) return;
+
+    const controls = getWinDialogControls();
+    if (!controls.length) {
+      event.preventDefault();
+      els['win-title'].focus();
+      return;
+    }
+
+    const currentIndex = controls.indexOf(document.activeElement);
+    if (currentIndex === -1) {
+      event.preventDefault();
+      controls[event.shiftKey ? controls.length - 1 : 0].focus();
+    } else if (event.shiftKey && currentIndex === 0) {
+      event.preventDefault();
+      controls[controls.length - 1].focus();
+    } else if (!event.shiftKey && currentIndex === controls.length - 1) {
+      event.preventDefault();
+      controls[0].focus();
+    }
+  }
+
   function applyThemeClass() {
     document.body.dataset.theme = themeId;
     const wrap = document.querySelector('.board-wrap');
@@ -858,6 +897,7 @@
   }
 
   function bind() {
+    document.addEventListener('keydown', trapWinDialogTab, true);
     els['btn-add-player'].addEventListener('click', () => addPlayer(false));
     els['btn-add-bot'].addEventListener('click', () => addPlayer(true));
     els['btn-start'].addEventListener('click', startGame);
@@ -921,6 +961,7 @@
       updateTurnUI();
       setStatus(wagerPot ? ('Wager pot: ' + wagerPot + '🪙') : '');
       maybeBotTurn();
+      els['btn-roll'].focus();
     });
 
     els['btn-setup'].addEventListener('click', async () => {

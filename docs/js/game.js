@@ -896,6 +896,9 @@
         }
       }
       Board.setTheme(themeId);
+      if (typeof Hazards !== 'undefined') {
+        Hazards.reset(!!(els['opt-hazards'] && els['opt-hazards'].checked));
+      }
       players.forEach((p) => { p.pos = 0; p.inventory = []; p.shield = false; });
       current = 0;
       rolling = false;
@@ -906,6 +909,7 @@
       els['dice-face'].textContent = '?';
       Board.buildBoard(els['board']);
       Board.drawOverlays(els['board-overlays']);
+      if (typeof Hazards !== 'undefined') Hazards.paint(els['board']);
       placeTokens();
       renderHud();
       updateTurnUI();

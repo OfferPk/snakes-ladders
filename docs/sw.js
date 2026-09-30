@@ -1,5 +1,5 @@
 /* Service worker — cache-first for offline play after first load */
-const CACHE = 'sl-v2-phaseA-20260930b';
+const CACHE = 'sl-v2-phaseA-20260930c';
 const ASSETS = [
   './',
   './index.html',

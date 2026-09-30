@@ -410,7 +410,7 @@
       setStatus(I18n.t('need_exact'));
       await sleep(700);
       rolling = false;
-      nextTurn();
+      nextTurn(I18n.t('need_exact'));
       return;
     }
 
@@ -535,7 +535,7 @@
     nextTurn();
   }
 
-  function nextTurn() {
+  function nextTurn(statusAfterTurn) {
     // hazard tick each turn
     const haz = Board.tickHazards();
     let extraShift = false;
@@ -552,7 +552,8 @@
     current = (current + 1) % players.length;
     updateTurnUI();
     renderHud();
-    if (!haz.moved) setStatus('');
+    if (statusAfterTurn) setStatus(statusAfterTurn);
+    else if (!haz.moved) setStatus('');
     maybeBotTurn();
   }
 

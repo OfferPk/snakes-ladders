@@ -75,7 +75,7 @@
       row.className = 'player-row';
       row.innerHTML =
         '<span class="swatch" style="background:' + p.color + '"></span>' +
-        '<input type="text" maxlength="16" value="' + escapeAttr(p.name) + '" data-i="' + i + '" />' +
+        '<input type="text" maxlength="16" aria-label="Player ' + (i + 1) + ' name" value="' + escapeAttr(p.name) + '" data-i="' + i + '" />' +
         (p.isBot ? '<span class="badge">BOT</span>' : '') +
         (setupList.length > MIN_PLAYERS
           ? '<button type="button" class="btn-remove" data-remove="' + i + '" aria-label="Remove">×</button>'

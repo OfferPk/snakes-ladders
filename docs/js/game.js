@@ -475,7 +475,8 @@
         SFX.snake();
         FX.flashStatus('snake');
         FX.shake(document.getElementById('app'), 480);
-        setStatus(I18n.t('slid', { n: tele.pos }));
+        handoffStatus = I18n.t('slid', { n: tele.pos });
+        setStatus(handoffStatus);
         await sleep(300);
 
         // Second-chance rewarded ad (once per match, human only)

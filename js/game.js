@@ -448,12 +448,14 @@
       FX.burstAtSquare(dest, choice === 'risk' ? '#f4a261' : '#90be6d');
     }
 
+    let handoffStatus = null;
     const tele = Board.applyTeleport(p.pos);
     if (tele.type === 'ladder') {
       SFX.ladder();
       FX.flashStatus('ladder');
       FX.burstAtSquare(p.pos, '#06d6a0');
-      setStatus(I18n.t('climbed', { n: tele.pos }));
+      handoffStatus = I18n.t('climbed', { n: tele.pos });
+      setStatus(handoffStatus);
       await sleep(350);
       p.pos = tele.pos;
       placeTokens(current);
@@ -532,7 +534,7 @@
     }
 
     rolling = false;
-    nextTurn();
+    nextTurn(handoffStatus);
   }
 
   function nextTurn(statusAfterTurn) {

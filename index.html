@@ -150,10 +150,10 @@
     </section>
 
     <!-- WIN -->
-    <div id="modal-win" class="modal" hidden>
+    <div id="modal-win" class="modal" role="dialog" aria-modal="true" aria-labelledby="win-title" hidden>
       <div class="modal-card">
         <div class="win-emoji" aria-hidden="true">🏆</div>
-        <h2 id="win-title">Winner!</h2>
+        <h2 id="win-title" tabindex="-1" aria-live="polite" aria-atomic="true">Winner!</h2>
         <p id="win-sub"></p>
         <p id="win-coins" class="win-coins"></p>
         <button type="button" id="btn-multiplier" class="btn ghost">📺 2× coins (rewarded ad)</button>

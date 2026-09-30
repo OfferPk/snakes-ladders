@@ -6,6 +6,7 @@
   "scripts": {
     "start": "npx --yes serve -l 4173 .",
     "serve": "npx --yes serve -l 4173 .",
+    "test": "node scripts/test-win-dialog-a11y.js",
     "build:web": "node scripts/build-web.js",
     "cap:add:android": "npx cap add android",
     "cap:sync": "npm run build:web && npx cap sync android",

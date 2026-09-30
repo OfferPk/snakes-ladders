@@ -580,7 +580,7 @@
     const hero = players[0];
     const heroWon = hero === p;
     lastWinAward = Profile.awardMatchCoins(heroWon, players.length, heroWon ? wagerPot : 0);
-    els['win-title'].textContent = I18n.t('winner', { name: p.name });
+    const winnerTitle = I18n.t('winner', { name: p.name });
     let sub = 'Reached 100 · Exact landing';
     if (wagerPot > 0) sub += heroWon ? (' · Won pot ' + wagerPot + '🪙') : (' · Pot lost (' + wagerPot + '🪙)');
     els['win-sub'].textContent = sub;
@@ -588,7 +588,10 @@
     els['btn-multiplier'].hidden = false;
     els['btn-multiplier'].disabled = false;
     els['btn-multiplier'].textContent = '📺 2× coins (rewarded ad)';
+    setStatus('');
     els['modal-win'].hidden = false;
+    els['win-title'].textContent = winnerTitle;
+    els['win-title'].focus();
     refreshCoinsUI();
   }
 

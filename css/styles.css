@@ -631,3 +631,9 @@ body[data-theme="tactical"] .modal-card {
   border: 1px solid var(--panel-border); border-radius: 8px;
   padding: 6px 10px; font-size: .9rem; max-width: 55%;
 }
+
+
+:where(button, input, select):focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
